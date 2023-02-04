@@ -21,15 +21,15 @@ jobs:
       - checkout
       - run:
           name: Pull Updated code from repo
-          command: git pull origin main
+          command: git pull origin $CIRCLE_BRANCH
       - azure-aks/update-kubeconfig-with-credentials:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           perform-login: true
           resource-group: << parameters.resource-group >>
       - kubernetes/create-or-update-resource:
-          resource-file-path: manifests/nodejs-aks-app.yaml
-          resource-name: kustomization/nodejs-aks-app
+          resource-file-path: manifests/$APP_NAME.yaml
+          resource-name: kustomization/$APP_NAME
 
   bump-docker-tag-kustomize:
     docker:
@@ -48,33 +48,33 @@ jobs:
           name: Bump Docker Tag
           command: |
             cd manifests
-            kustomize edit set image $nodejs-aks-app=rahulrajeev8/nodejs-aks-app:$CIRCLE_SHA1
-            kustomize build . > nodejs-aks-app.yaml
+            kustomize edit set image $APP_NAME=$DOCKER_LOGIN/$APP_NAME:$CIRCLE_SHA1
+            kustomize build . > $APP_NAME.yaml
       - add_ssh_keys:
           fingerprints:
-            - "eb:96:ad:27:56:e9:62:b9:42:5f:85:0d:df:08:df:6e"
+            - "$SSH_FINGERPRINT"
       - run:
           name: Commit & Push to GitHub
           command: |
-            git config user.email "rahulrajeev800@gmail.com"
-            git config user.name "rahulrajeev5"
-            git checkout main           
-            git add manifests/nodejs-aks-app.yaml
+            git config user.email "$GITHUB_EMAIL"
+            git config user.name "CircleCI User"
+            git checkout $CIRCLE_BRANCH           
+            git add manifests/$APP_NAME.yaml
             git add manifests/kustomization.yaml
             git commit -am "Bumps docker tag [skip ci]"
-            git push origin main
+            git push origin $CIRCLE_BRANCH
 
 workflows:
   Deploy-App-on-AKS:
     jobs:
       - docker/publish:
-          image: $rahulrajeev8/nodejs-aks-app
+          image: $DOCKER_LOGIN/$APP_NAME
           tag: $CIRCLE_SHA1,latest
       - bump-docker-tag-kustomize:
           requires:
             - docker/publish
       - aks-deploy:
-          cluster-name: ECOMMERCE
-          resource-group: SRH
+          cluster-name: $CLUSTER_NAME
+          resource-group: $RESOURCE_GROUP
           requires:
             - bump-docker-tag-kustomize
