@@ -52,7 +52,7 @@ jobs:
             kustomize build . > nodejs-aks-app.yaml
       - add_ssh_keys:
           fingerprints:
-            - "$71:78:08:12:67:3c:d9:e7:a7:bc:b8:76:60:d4:4f:31"
+            - "eb:96:ad:27:56:e9:62:b9:42:5f:85:0d:df:08:df:6e"
       - run:
           name: Commit & Push to GitHub
           command: |
