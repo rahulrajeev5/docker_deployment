@@ -38,7 +38,7 @@ spec:
         app: nodejs
     spec:
       containers:
-      - image: rahulrajeev8/nodejs-aks-app:3134b31048b3d0a6f51fcbd99dcba32bf9050284
+      - image: rahulrajeev8/nodejs-aks-app:da4343994111550ecfc4547665a7474e4e40d11f
         name: nodejs-aks-app
         ports:
         - containerPort: 1337
