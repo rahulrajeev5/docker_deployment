@@ -23,10 +23,10 @@ jobs:
           name: Pull Updated code from repo
           command: git pull origin main
       - azure-aks/update-kubeconfig-with-credentials:
-          cluster-name: SRH
+          cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           perform-login: true
-          resource-group: ECOMMERCE
+          resource-group: << parameters.resource-group >>
       - kubernetes/create-or-update-resource:
           resource-file-path: manifests/nodejs-aks-app.yaml
           resource-name: kustomization/nodejs-aks-app
@@ -74,7 +74,7 @@ workflows:
           requires:
             - docker/publish
       - aks-deploy:
-          cluster-name: SRH
-          resource-group: ECOMMERCE
+          cluster-name: ECOMMERCE
+          resource-group: SRH
           requires:
             - bump-docker-tag-kustomize
